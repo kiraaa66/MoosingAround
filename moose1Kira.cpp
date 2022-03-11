@@ -18,8 +18,8 @@ using namespace std;
 
 #define players 2
 #define fields 3
-#define runs 30
-#define gens 40
+#define runs 10
+#define gens 10
 #define MNM 2
 
 
@@ -35,9 +35,22 @@ int main(){
     int j;
     int k;
 
-    vector<vector<int>> moosePlays;
+    vector<vector<int>> moosePlays; // potentially use an array, perk of vector is it is user defined length
+    vector<vector<int>> fieldGrowth; // keeps track of the field growth after each iteration of the game
 
 
+    for (i = 0; i < runs; i++){
+        // resets the original field growth every round
+        fieldGrowth[0][0] = expFun(0);
+        fieldGrowth[1][0] = expFun(0);
+        fieldGrowth[2][0] = expFun(0);
+        
+        for (j = 0; j < gens; j++){ // this is the runs within the population
+
+
+
+        }
+    }
 
 
 
