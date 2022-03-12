@@ -33,7 +33,12 @@ int main(){
 
     int i;
     int j;
-    int k;
+    int k = 0;
+    int moose1Field;
+    int moose2Field;
+    vector<int> fieldTracker;
+    vector<int> mooseConsumption;
+
 
     vector<vector<int>> moosePlays; // potentially use an array, perk of vector is it is user defined length
     vector<vector<int>> fieldGrowth; // keeps track of the field growth after each iteration of the game
@@ -45,18 +50,61 @@ int main(){
         fieldGrowth[1][0] = expFun(0);
         fieldGrowth[2][0] = expFun(0);
         
+        //resets the value of the field at the beginning
+        fieldTracker[0] = 0;
+        fieldTracker[1] = 0;
+        fieldTracker[2] = 0;
+        
+        //resets the moose consumption every round
+        mooseConsumption[0] = 0;
+        mooseConsumption[1] = 0;
+
+
         for (j = 0; j < gens; j++){ // this is the runs within the population
+            //use a random generator to determine which field the moose populate to on each turn
+            moosePlays[0][j] = rand() % 3;
+            moosePlays[1][j] = rand() % 3;
+            moose1Field = moosePlays[0][j]; // sets a variable to keep track of individual plays
+            moose2Field = moosePlays[1][j];
 
+            if (moose1Field == moose2Field){
+                fieldTracker[moose1Field] -= 1; // takes away the growth rate by one if the moose are fighting
+                if (fieldTracker[moose1Field] <= 0){ // makes sure that the minimum it can go to is one
+                    fieldTracker[moose1Field] = 0;
+                    
+                }
+                fieldGrowth[moose1Field][j] = expFun(fieldTracker[moose1Field]);
+                for (k = 0; k < fields; k++){ // goes through each of the fields
+                    if (k != moose1Field){ // this means it changes any fields the moose weren't in
+                        fieldTracker[k] += 1;
+                        fieldGrowth[k][j] = expFun(fieldTracker[k]); // sets the field growth to be this new one
+                    }
+                }
+            }
+            else {
+                for (k = 0; k < fields; k++){
 
+                    if (k == moose1Field){
+                        mooseConsumption[0] = expFun(fieldTracker[k]) - expFun(0);
+                        fieldTracker[k] -= 1;
+                        
+                    }
+                    else if (k == moose2Field){
+                        mooseConsumption[1] = expFun(fieldTracker[k]) - expFun(0);
+                        fieldTracker[k] -= 1;
+                    }
+                    else{
+                        fieldTracker[k] += 1;
+                        fieldGrowth[k][j] = expFun(fieldTracker[k]);
+                    }
 
+                }
+            }
+            cout<< "Run " << i << "Generation " << j << "Moose 1 Field: " << moosePlays[0][j] << "Moose 2 Field: " << moosePlays[1][j] << endl; 
         }
     }
 
-
-
 }
-
-
 //functions
 int expFun(int x){
 
