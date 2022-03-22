@@ -19,7 +19,7 @@ using namespace std;
 #define players 2
 #define fields 3
 #define runs 1
-#define gens 25
+#define gens 10
 #define MNM 2
 
 #define seed 234329 // suggested by Michael
@@ -37,13 +37,13 @@ int main(){
     int moose2Field;
 
     //vector changes given by Michael
-    vector<double> fieldTracker(fields);
+    vector<int> fieldTracker(fields);
     vector<int> mooseConsumption(players);
 
     default_random_engine rand(seed);
 
     vector<vector<int>> moosePlays(players); // potentially use an array, perk of vector is it is user defined length
-    vector<vector<double>> fieldGrowth(fields); // keeps track of the field growth after each iteration of the game
+    vector<vector<int>> fieldGrowth(fields); // keeps track of the field growth after each iteration of the game
 
 
     //reserve space given by Michael
