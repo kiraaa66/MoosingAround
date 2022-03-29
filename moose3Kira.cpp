@@ -21,6 +21,7 @@ using namespace std;
 #define gens 4
 #define MNM 2
 #define turns 10
+#define popsize 4
 
 #define seed 234329 // suggested by Michael
 
@@ -33,24 +34,104 @@ int main(){
 
     int i, j, k; //for loop variables
 
+    int curbest = 0;
+    int popbest;
+    int endgen;
+    int wfit;
+    int bfit;
+    int fitcap = 40; // work on math for what this would be
+    int cross;
+    int pert;
+
     default_random_engine rand(seed);
     uniform_int_distribution<int> fieldSelection(0, fields - 1);
+    uniform_int_distribution<int> tourdist(0,popsize-1);
+    uniform_int_distribution<int> crossdist(0,turns-1);
+    vector<int> winlos (4); // vector that holds tournament winners and losers.
 
     //set up calculating the random score each time
-    vector<vector<int>> moosePlays(gens);
-    vector<int> mooseVals(gens);
+    vector<vector<int>> moosePlays(popsize);
+    vector<int> mooseVals(popsize);
 
-    for (k = 0; k < runs; k++){
-        for (i = 0; i < gens; i++){
+
+    for (k = 0; k < runs; k++){ // how many times this is run
+
+        for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
             moosePlays[i].reserve(turns);
         }
-        for (i = 0; i < gens; i++){
+        for (i = 0; i < popsize; i++){
             for (j = 0; j < turns; j++){
-                moosePlays[i][j] = fieldSelection(rand);
+                moosePlays[i][j] = fieldSelection(rand); // randomly selects a field for moose1 for each turn
+                cout << moosePlays[i][j] << endl; // checking if it prints fields
             }
+            //currently a seg fault in this function itself, works printing otherwise
             mooseVals[i] = fitFUN(moosePlays[i]);
-            cout << "Moose Val Gen: " << i << "Turn: " << j << " " << mooseVals[i] << endl; 
+            cout << "Moose Val: " << i << " " << mooseVals[i] << endl;
+            if (mooseVals[i] > curbest){ // writes out what the best value is
+                curbest = mooseVals[i];
+                popbest = i;
+            }
         }
+
+
+
+
+
+
+
+        //tournament
+        endgen = gens; // Assume we fail until proven otherwise.
+
+		for(i = 1; i <= gens; i++)	{ // loop for tournaments.
+			wfit = 0; // reset worst possible fitness.
+			bfit = fitcap; // reset best possible fitness.
+			if(curbest >= bfit)	{ // has max fitness been achieved?
+				endgen = i; // marks when global optima was found.
+				i = gens; // skip to the ends
+				continue; // skips the rest of EA process if the best possible fitness has been found
+			}
+			for(j = 0; j < popsize; j++)	{ // picking out tourney entrants.
+				if(mooseVals[j]>=wfit)	{ // best parent is fit.
+					winlos[1] = winlos[0]; // shove down current best to second best.
+					winlos[0] = mooseVals[j]; // crown new best.
+					wfit = mooseVals[j]; // set new bar to beat.
+				}
+				if(mooseVals[j]<=bfit)	{ // worst competitor is unfit.
+					winlos[2] = winlos[3]; // worst becomes second worst.
+					winlos[3] = mooseVals[j]; // crown new worst.
+					bfit = mooseVals[j]; // lower the ceiling on badness.
+				}
+			}
+
+			cross = crossdist(rand); // pick random point between loci
+			for(k=2; k<4; k++)	{ // we overwrite our two tournament losers differently depending our crossover type.
+				for(j = 0; j < cross; j++)	{ // first parent is leading.
+					pop[winlos[k]][j] = pop[winlos[k%2]][j]; // overwrite loser.
+				}
+				for(j = cross; j < len; j++)	{ // second parent is leading.
+					pop[winlos[k]][j] = pop[winlos[(k+1)%2]][j]; // overwrite rest of loser.
+				}
+				for(j = 0; j<MNM; j++)	{ // mutate the children born from crossover
+					pert = crossdist(rand); // pick mutation point.
+					pop[winlos[k]][pert] = initdist(rand); // overwrite this mutated entry.
+				}
+				fit[winlos[k]] = fitFUN(pop[winlos[k]]); // call on fitness function for new population member.
+				if(fit[winlos[k]] > curbest)	{ // New champion
+					curbest = fit[winlos[k]]; // Raise the bar for best fitness.
+					popbest = winlos[k]; // mark new best member of population.
+				}
+			}
+		}
+
+
+
+
+
+
+
+
+
+
     }
 
 }
