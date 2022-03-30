@@ -120,6 +120,11 @@ int main(){
 			}
 		}
         cout << " PRODUCED MEMBER OF FITNESS " << mooseVals[popbest] << " AT GENERATION " << endgen << endl;
+        for (i = 0; i < turns; i++){
+            cout << moosePlays[popbest][i];
+        }
+        cout << endl;
+
 		curbest = 0; // reset curbest for next run.
 		popbest = 0; // reset popbest for next run.
 
