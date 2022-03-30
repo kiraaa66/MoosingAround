@@ -17,9 +17,9 @@ using namespace std;
 
 #define players 2
 #define fields 3
-#define runs 1
-#define gens 4
-#define MNM 2
+#define runs 15
+#define gens 1000
+#define MNM 3
 #define turns 10
 #define popsize 4
 
@@ -32,20 +32,23 @@ int fitFUN(vector<int> moose1);
 
 int main(){
 
-    int i, j, k; //for loop variables
+    int i, j, k, run; //for loop variables
 
     int curbest = 0;
     int popbest;
     int endgen;
     int wfit;
     int bfit;
-    int fitcap = 40; // work on math for what this would be
+    int fitcap = 0; 
+    // the greatest amount they could achieve would be going to a field that has been allowed to replenish its resources each time without anyone else going???? math ???
+    for (i = 1; i <= turns; i++){
+        fitcap += (expFun(i) - expFun(0));
+    }
     int cross;
     int pert;
-
     default_random_engine rand(seed);
     uniform_int_distribution<int> fieldSelection(0, fields - 1);
-    uniform_int_distribution<int> tourdist(0,popsize-1);
+    //uniform_int_distribution<int> tourdist(0,popsize-1);
     uniform_int_distribution<int> crossdist(0,turns-1);
     vector<int> winlos (4); // vector that holds tournament winners and losers.
 
@@ -54,30 +57,24 @@ int main(){
     vector<int> mooseVals(popsize);
 
 
-    for (k = 0; k < runs; k++){ // how many times this is run
+    for (run = 0; run < runs; run++){ // how many times this is run
 
         for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
-            moosePlays[i].reserve(turns);
+            moosePlays[i].resize(turns);
         }
         for (i = 0; i < popsize; i++){
             for (j = 0; j < turns; j++){
                 moosePlays[i][j] = fieldSelection(rand); // randomly selects a field for moose1 for each turn
-                cout << moosePlays[i][j] << endl; // checking if it prints fields
+                //cout << "pop: " << i << " Turn " << j << " "<< moosePlays[i][j] << endl; // checking if it prints fields
             }
             //currently a seg fault in this function itself, works printing otherwise
             mooseVals[i] = fitFUN(moosePlays[i]);
-            cout << "Moose Val: " << i << " " << mooseVals[i] << endl;
+            //cout << "Moose Val: " << i << " " << mooseVals[i] << endl;
             if (mooseVals[i] > curbest){ // writes out what the best value is
                 curbest = mooseVals[i];
                 popbest = i;
             }
         }
-
-
-
-
-
-
 
         //tournament
         endgen = gens; // Assume we fail until proven otherwise.
@@ -93,12 +90,12 @@ int main(){
 			for(j = 0; j < popsize; j++)	{ // picking out tourney entrants.
 				if(mooseVals[j]>=wfit)	{ // best parent is fit.
 					winlos[1] = winlos[0]; // shove down current best to second best.
-					winlos[0] = mooseVals[j]; // crown new best.
+					winlos[0] = j; // crown new best.
 					wfit = mooseVals[j]; // set new bar to beat.
 				}
 				if(mooseVals[j]<=bfit)	{ // worst competitor is unfit.
 					winlos[2] = winlos[3]; // worst becomes second worst.
-					winlos[3] = mooseVals[j]; // crown new worst.
+					winlos[3] = j; // crown new worst.
 					bfit = mooseVals[j]; // lower the ceiling on badness.
 				}
 			}
@@ -106,31 +103,25 @@ int main(){
 			cross = crossdist(rand); // pick random point between loci
 			for(k=2; k<4; k++)	{ // we overwrite our two tournament losers differently depending our crossover type.
 				for(j = 0; j < cross; j++)	{ // first parent is leading.
-					pop[winlos[k]][j] = pop[winlos[k%2]][j]; // overwrite loser.
+					moosePlays[winlos[k]][j] = moosePlays[winlos[k%2]][j]; // overwrite loser.
 				}
-				for(j = cross; j < len; j++)	{ // second parent is leading.
-					pop[winlos[k]][j] = pop[winlos[(k+1)%2]][j]; // overwrite rest of loser.
+				for(j = cross; j < turns; j++)	{ // second parent is leading.
+					moosePlays[winlos[k]][j] = moosePlays[winlos[(k+1)%2]][j]; // overwrite rest of loser.
 				}
 				for(j = 0; j<MNM; j++)	{ // mutate the children born from crossover
 					pert = crossdist(rand); // pick mutation point.
-					pop[winlos[k]][pert] = initdist(rand); // overwrite this mutated entry.
+					moosePlays[winlos[k]][pert] = fieldSelection(rand); // overwrite this mutated entry.
 				}
-				fit[winlos[k]] = fitFUN(pop[winlos[k]]); // call on fitness function for new population member.
-				if(fit[winlos[k]] > curbest)	{ // New champion
-					curbest = fit[winlos[k]]; // Raise the bar for best fitness.
+				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]]); // call on fitness function for new population member.
+				if(mooseVals[winlos[k]] > curbest)	{ // New champion
+					curbest = mooseVals[winlos[k]]; // Raise the bar for best fitness.
 					popbest = winlos[k]; // mark new best member of population.
 				}
 			}
 		}
-
-
-
-
-
-
-
-
-
+        cout << " PRODUCED MEMBER OF FITNESS " << mooseVals[popbest] << " AT GENERATION " << endgen << endl;
+		curbest = 0; // reset curbest for next run.
+		popbest = 0; // reset popbest for next run.
 
     }
 
@@ -157,10 +148,14 @@ int fitFUN(vector<int> moose1){
     //random variables for moose 2 strategy
     default_random_engine random(seed);
     uniform_int_distribution<int> moose2Selection(0, fields - 1);
+    moose2[0] = 0;
+    //randomly selects the moose fields for each of the turns - old version
 
-    //randomly selects the moose fields for each of the turns
-    for (i = 0; i < turns; i++){
-        moose2[i] = moose2Selection(random);
+    for (i = 0; i < turns; i++){ //chooses moose values by just going to the field next to it each time
+        moose2[i] = moose2[i-1] + 1;
+        if (moose2[i] > 2){
+            moose2[i] = 0;
+        }
     }
 
     for (i = 0; i < turns; i++){
