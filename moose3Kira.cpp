@@ -77,7 +77,7 @@ int main(){
         }
 
         //tournament
-        endgen = gens; // Assume we fail until proven otherwise.
+        endgen = gens; // This is to tell if we found the global optima before the end
 
 		for(i = 1; i <= gens; i++)	{ // loop for tournaments.
 			wfit = 0; // reset worst possible fitness.
@@ -87,7 +87,7 @@ int main(){
 				i = gens; // skip to the ends
 				continue; // skips the rest of EA process if the best possible fitness has been found
 			}
-			for(j = 0; j < popsize; j++)	{ // picking out tourney entrants.
+			for(j = 0; j < popsize; j++){
 				if(mooseVals[j]>=wfit)	{ // best parent is fit.
 					winlos[1] = winlos[0]; // shove down current best to second best.
 					winlos[0] = j; // crown new best.
@@ -96,7 +96,7 @@ int main(){
 				if(mooseVals[j]<=bfit)	{ // worst competitor is unfit.
 					winlos[2] = winlos[3]; // worst becomes second worst.
 					winlos[3] = j; // crown new worst.
-					bfit = mooseVals[j]; // lower the ceiling on badness.
+					bfit = mooseVals[j]; // assigns the new worst to bfit
 				}
 			}
 
