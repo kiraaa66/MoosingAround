@@ -18,10 +18,10 @@ using namespace std;
 #define players 2
 #define fields 3
 #define runs 15
-#define gens 1000
+#define gens 100000
 #define MNM 3
 #define turns 10
-#define popsize 4
+#define popsize 10
 
 #define seed 234329 // suggested by Michael
 
@@ -33,6 +33,8 @@ int fitFUN(vector<int> moose1);
 int main(){
 
     int i, j, k, run; //for loop variables
+
+    ofstream mooseOutput;
 
     int curbest = 0;
     int popbest;
@@ -56,6 +58,7 @@ int main(){
     vector<vector<int>> moosePlays(popsize);
     vector<int> mooseVals(popsize);
 
+    mooseOutput.open("mooseOutput2.txt");
 
     for (run = 0; run < runs; run++){ // how many times this is run
 
@@ -119,16 +122,19 @@ int main(){
 				}
 			}
 		}
-        cout << " PRODUCED MEMBER OF FITNESS " << mooseVals[popbest] << " AT GENERATION " << endgen << endl;
-        for (i = 0; i < turns; i++){
-            cout << moosePlays[popbest][i];
-        }
-        cout << endl;
+        mooseOutput << " PRODUCED MEMBER OF FITNESS " << mooseVals[popbest] << " AT GENERATION " << endgen << endl;
+        //for (i = 0; i < turns; i++){
+          //  mooseOutput << moosePlays[popbest][i];
+
+        //}
+        //mooseOutput << endl;
 
 		curbest = 0; // reset curbest for next run.
 		popbest = 0; // reset popbest for next run.
 
     }
+    mooseOutput.close();
+    return 0;
 
 }
 int expFun(int x){
@@ -195,7 +201,6 @@ int fitFUN(vector<int> moose1){
                 fieldNum[j] = 0;
             }
         }
-
     }
     return moose1Val;
 }
