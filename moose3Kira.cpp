@@ -115,12 +115,15 @@ int main(){
 					pert = crossdist(rand); // pick mutation point.
 					moosePlays[winlos[k]][pert] = fieldSelection(rand); // overwrite this mutated entry.
 				}
-				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]]); // call on fitness function for new population member.
+				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]]); // call on fitness function for new populations member.
 				if(mooseVals[winlos[k]] > curbest)	{ // New champion
 					curbest = mooseVals[winlos[k]]; // Raise the bar for best fitness.
 					popbest = winlos[k]; // mark new best member of population.
 				}
 			}
+            if ((i%10000) == 0){
+                mooseOutput << mooseVals[popbest] << endl;
+            }
 		}
         mooseOutput << " PRODUCED MEMBER OF FITNESS " << mooseVals[popbest] << " AT GENERATION " << endgen << endl;
         //for (i = 0; i < turns; i++){
