@@ -18,7 +18,7 @@ using namespace std;
 #define players 2
 #define fields 3
 #define runs 15
-#define gens 100000
+#define gens 1000
 #define MNM 3
 #define turns 10
 #define popsize 10
@@ -28,7 +28,7 @@ using namespace std;
 //function definitions
 int expFun(int x);
 
-int fitFUN(vector<int> moose1);
+int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum);
 
 int main(){
 
@@ -58,6 +58,14 @@ int main(){
     vector<vector<int>> moosePlays(popsize);
     vector<int> mooseVals(popsize);
 
+    vector<int> fieldNum(fields);
+    for (i = 0; i < fields; i++){
+        fieldNum[i] = 1;
+    }
+
+    int secondMoose = 0;
+
+
     mooseOutput.open("mooseOutput2.txt");
 
     for (run = 0; run < runs; run++){ // how many times this is run
@@ -71,11 +79,11 @@ int main(){
                 //cout << "pop: " << i << " Turn " << j << " "<< moosePlays[i][j] << endl; // checking if it prints fields
             }
             //currently a seg fault in this function itself, works printing otherwise
-            mooseVals[i] = fitFUN(moosePlays[i]);
+            mooseVals[i] = fitFUN(moosePlays[i], secondMoose, fieldNum);
             //cout << "Moose Val: " << i << " " << mooseVals[i] << endl;
             if (mooseVals[i] > curbest){ // writes out what the best value is
-                curbest = mooseVals[i];
-                popbest = i;
+                curbest = mooseVals[i]; //assigns whatever is highest in the pop right at the start
+                popbest = i; // this could be overwritten that's why
             }
         }
 
@@ -91,20 +99,16 @@ int main(){
 				continue; // skips the rest of EA process if the best possible fitness has been found
 			}
 			for(j = 0; j < popsize; j++){
-				if(mooseVals[j]>=wfit)	{ // best parent is fit.
-                    if(mooseVals[j] > winlos[0]){
-                        winlos[1] = winlos[0]; // shove down current best to second best.
-					    winlos[0] = j; // crown new best.
-                        curbest = mooseVals[j];
-                        popbest = j;
-					    wfit = mooseVals[j]; // set new bar to beat.
-                    }
-                    else if(mooseVals[j] > winlos[1] && mooseVals[j] < winlos[0]){
-                        winlos[1] = j;
-                    }
+				if(mooseVals[j] >=wfit)	{ // best parent is fit.
+                    
+                    winlos[1] = winlos[0]; // shove down current best to second best.
+					winlos[0] = j; // crown new best.
+                        //curbest = mooseVals[j];
+                        //popbest = j;
+					wfit = mooseVals[j]; // set new bar to beat.
 					
 				}
-				if(mooseVals[j]<=bfit)	{ // worst competitor is unfit.
+				if(mooseVals[j]<=bfit && j != popbest)	{ // worst competitor is unfit.
 					winlos[2] = winlos[3]; // worst becomes second worst.
 					winlos[3] = j; // crown new worst.
 					bfit = mooseVals[j]; // assigns the new worst to bfit
@@ -123,7 +127,7 @@ int main(){
 					pert = crossdist(rand); // pick mutation point.
 					moosePlays[winlos[k]][pert] = fieldSelection(rand); // overwrite this mutated entry.
 				}
-				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]]); // call on fitness function for new populations member.
+				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]], secondMoose, fieldNum); // call on fitness function for new populations member.
 				if(mooseVals[winlos[k]] > curbest)	{ // New champion
 					curbest = mooseVals[winlos[k]]; // Raise the bar for best fitness.
 					popbest = winlos[k]; // mark new best member of population.
@@ -154,15 +158,13 @@ int expFun(int x){
 
 } 
 
-int fitFUN(vector<int> moose1){
+int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum){
 
     vector<int> moose2(turns); // moose2 picks fo this particular round
 
     int i, j; // for loops variables
     int moose1Val = 0;
-    int moose2Val = 0;
-
-    vector<int> fieldNum(fields);
+    moose2Val = 0;
     for (i = 0; i < fields; i++){
         fieldNum[i] = 1;
     }
