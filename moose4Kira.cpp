@@ -28,13 +28,13 @@ using namespace std;
 //function definitions
 int expFun(int x);
 
-int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum);
+int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum, vector<int> moose2);
 
 int main(){
 
     int i, j, k, run; //for loop variables
 
-    ofstream mooseOutput;
+    //ofstream mooseOutput;
 
     int curbest = 0;
     int popbest = 0;
@@ -63,10 +63,24 @@ int main(){
         fieldNum[i] = 1;
     }
 
+
+    vector<int> moose2(turns); // moose2 picks for this particular round
+    //uniform_int_distribution<int> moose2Selection(0, fields - 1);
+    moose2[0] = 0;
+    //randomly selects the moose fields for each of the turns - old version
+
+    for (i = 0; i < turns; i++){ //chooses moose values by just going to the field next to it each time
+        moose2[i] = moose2[i-1] + 1;
+        if (moose2[i] > turns - 1){
+            moose2[i] = 0;
+        }
+    }
+
+
     int secondMoose = 0;
 
 
-    mooseOutput.open("mooseOutput2.txt");
+    //mooseOutput.open("mooseOutput2.txt");
 
     for (run = 0; run < runs; run++){ // how many times this is run
 
@@ -79,7 +93,7 @@ int main(){
                 //cout << "pop: " << i << " Turn " << j << " "<< moosePlays[i][j] << endl; // checking if it prints fields
             }
             //currently a seg fault in this function itself, works printing otherwise
-            mooseVals[i] = fitFUN(moosePlays[i], secondMoose, fieldNum);
+            mooseVals[i] = fitFUN(moosePlays[i], secondMoose, fieldNum, moose2);
             //cout << "Moose Val: " << i << " " << mooseVals[i] << endl;
             if (mooseVals[i] > curbest){ // writes out what the best value is
                 curbest = mooseVals[i]; //assigns whatever is highest in the pop right at the start
@@ -127,17 +141,17 @@ int main(){
 					pert = crossdist(rand); // pick mutation point.
 					moosePlays[winlos[k]][pert] = fieldSelection(rand); // overwrite this mutated entry.
 				}
-				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]], secondMoose, fieldNum); // call on fitness function for new populations member.
+				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]], secondMoose, fieldNum, moose2); // call on fitness function for new populations member.
 				if(mooseVals[winlos[k]] > curbest)	{ // New champion
 					curbest = mooseVals[winlos[k]]; // Raise the bar for best fitness.
 					popbest = winlos[k]; // mark new best member of population.
 				}
 			}
-            if ((i%100) == 0){
-                mooseOutput << mooseVals[popbest] << endl;
-            }
+            //if ((i%100) == 0){
+              //  mooseOutput << mooseVals[popbest] << endl;
+            //}
 		}
-        mooseOutput << " PRODUCED MEMBER OF FITNESS " << mooseVals[popbest] << " AT GENERATION " << endgen << endl;
+        cout << " PRODUCED MEMBER OF FITNESS " << mooseVals[popbest] << " AT GENERATION " << endgen << endl;
         //for (i = 0; i < turns; i++){
           //  mooseOutput << moosePlays[popbest][i];
 
@@ -148,7 +162,7 @@ int main(){
 		popbest = 0; // reset popbest for next run.
 
     }
-    mooseOutput.close();
+    //mooseOutput.close();
     return 0;
 
 }
@@ -158,9 +172,9 @@ int expFun(int x){
 
 } 
 
-int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum){
+int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum, vector<int> moose2){
 
-    vector<int> moose2(turns); // moose2 picks fo this particular round
+    
 
     int i, j; // for loops variables
     int moose1Val = 0;
@@ -170,8 +184,9 @@ int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum){
     }
 
     //random variables for moose 2 strategy
-    default_random_engine random(seed);
-    uniform_int_distribution<int> moose2Selection(0, fields - 1);
+    //default_random_engine random(seed);
+    //vector<int> moose2(turns); // moose2 picks for this particular round
+    //uniform_int_distribution<int> moose2Selection(0, fields - 1);
     moose2[0] = 0;
     //randomly selects the moose fields for each of the turns - old version
 
