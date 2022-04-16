@@ -17,11 +17,11 @@ using namespace std;
 
 #define players 2
 #define fields 3
-#define runs 15
+#define runs 30
 #define gens 1000
 #define MNM 3
 #define turns 10
-#define popsize 10
+#define popsize 100
 
 #define seed 234329 // suggested by Michael
 
