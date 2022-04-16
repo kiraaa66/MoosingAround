@@ -17,11 +17,11 @@ using namespace std;
 
 #define players 2
 #define fields 3
-#define runs 30
-#define gens 1000
+#define runs 10
+#define gens 10
 #define MNM 3
 #define turns 10
-#define popsize 100
+#define popsize 10
 
 #define seed 234329 // suggested by Michael
 
@@ -83,7 +83,6 @@ int main(){
     //mooseOutput.open("mooseOutput2.txt");
 
     for (run = 0; run < runs; run++){ // how many times this is run
-
         for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
             moosePlays[i].resize(turns);
         }
@@ -97,9 +96,10 @@ int main(){
             //cout << "Moose Val: " << i << " " << mooseVals[i] << endl;
             if (mooseVals[i] > curbest){ // writes out what the best value is
                 curbest = mooseVals[i]; //assigns whatever is highest in the pop right at the start
-                popbest = i; // this could be overwritten that's why
+                popbest = i; // this could be overwritten that's why   
             }
         }
+        cout << curbest << " " << popbest<< endl;
 
         //tournament
         endgen = gens; // This is to tell if we found the global optima before the end
@@ -114,21 +114,20 @@ int main(){
 			}
 			for(j = 0; j < popsize; j++){
 				if(mooseVals[j] >=wfit)	{ // best parent is fit.
-                    
                     winlos[1] = winlos[0]; // shove down current best to second best.
 					winlos[0] = j; // crown new best.
                         //curbest = mooseVals[j];
                         //popbest = j;
 					wfit = mooseVals[j]; // set new bar to beat.
-					
 				}
-				if(mooseVals[j]<=bfit && j != popbest)	{ // worst competitor is unfit.
-					winlos[2] = winlos[3]; // worst becomes second worst.
-					winlos[3] = j; // crown new worst.
-					bfit = mooseVals[j]; // assigns the new worst to bfit
-				}
+                if (j != popbest){
+                    if(mooseVals[j]<=bfit){ // worst competitor is unfit.
+					    winlos[2] = winlos[3]; // worst becomes second worst.
+					    winlos[3] = j; // crown new worst.
+					    bfit = mooseVals[j]; // assigns the new worst to bfit
+				    }
+                }
 			}
-
 			cross = crossdist(rand); // pick random point between loci
 			for(k=2; k<4; k++)	{ // we overwrite our two tournament losers differently depending our crossover type.
 				for(j = 0; j < cross; j++)	{ // first parent is leading.
@@ -147,11 +146,11 @@ int main(){
 					popbest = winlos[k]; // mark new best member of population.
 				}
 			}
-            //if ((i%100) == 0){
-              //  mooseOutput << mooseVals[popbest] << endl;
-            //}
+            if ((i%1) == 0){
+                cout << curbest << " " << popbest << endl;
+            }
 		}
-        cout << " PRODUCED MEMBER OF FITNESS " << mooseVals[popbest] << " AT GENERATION " << endgen << endl;
+        cout << " PRODUCED MEMBER OF FITNESS " << curbest << " " << popbest <<" AT GENERATION " << endgen << endl;
         //for (i = 0; i < turns; i++){
           //  mooseOutput << moosePlays[popbest][i];
 
