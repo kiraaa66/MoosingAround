@@ -17,7 +17,7 @@ using namespace std;
 
 #define players 2
 #define fields 3
-#define runs 10
+#define runs 1
 #define gens 10
 #define MNM 3
 #define turns 10
@@ -34,10 +34,12 @@ int main(){
 
     int i, j, k, run; //for loop variables
 
-    //ofstream mooseOutput;
+    ofstream mooseOutput;
 
     int curbest = 0;
     int popbest = 0;
+    int m1Avg = 0;
+    int m2Avg = 0;
     int endgen;
     int wfit;
     int bfit;
@@ -77,12 +79,13 @@ int main(){
     }
 
 
-    int secondMoose = 0;
+    vector <int> secondMoose(popsize); // set vector to keep track of the values the moose have
 
 
-    //mooseOutput.open("mooseOutput2.txt");
+    mooseOutput.open("mooseOutput3.txt");
 
     for (run = 0; run < runs; run++){ // how many times this is run
+        mooseOutput << "Run " << run << endl; // outputs which run it is to the textfile  
         for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
             moosePlays[i].resize(turns);
         }
@@ -92,14 +95,15 @@ int main(){
                 //cout << "pop: " << i << " Turn " << j << " "<< moosePlays[i][j] << endl; // checking if it prints fields
             }
             //currently a seg fault in this function itself, works printing otherwise
-            mooseVals[i] = fitFUN(moosePlays[i], secondMoose, fieldNum, moose2);
+            mooseVals[i] = fitFUN(moosePlays[i], secondMoose[i], fieldNum, moose2);
+
             //cout << "Moose Val: " << i << " " << mooseVals[i] << endl;
             if (mooseVals[i] > curbest){ // writes out what the best value is
                 curbest = mooseVals[i]; //assigns whatever is highest in the pop right at the start
                 popbest = i; // this could be overwritten that's why   
             }
         }
-        cout << curbest << " " << popbest<< endl;
+        //cout << curbest << " " << popbest<< endl;
 
         //tournament
         endgen = gens; // This is to tell if we found the global optima before the end
@@ -140,17 +144,18 @@ int main(){
 					pert = crossdist(rand); // pick mutation point.
 					moosePlays[winlos[k]][pert] = fieldSelection(rand); // overwrite this mutated entry.
 				}
-				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]], secondMoose, fieldNum, moose2); // call on fitness function for new populations member.
+				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]], secondMoose[winlos[k]], fieldNum, moose2); // call on fitness function for new populations member.
 				if(mooseVals[winlos[k]] > curbest)	{ // New champion
 					curbest = mooseVals[winlos[k]]; // Raise the bar for best fitness.
 					popbest = winlos[k]; // mark new best member of population.
 				}
 			}
             if ((i%1) == 0){
-                cout << curbest << " " << popbest << endl;
+                mooseOutput << curbest << endl;
             }
 		}
-        cout << " PRODUCED MEMBER OF FITNESS " << curbest << " " << popbest <<" AT GENERATION " << endgen << endl;
+        //mooseOutput << "Fitness Member "<<curbest <<;
+        //cout << " PRODUCED MEMBER OF FITNESS " << curbest << " " << popbest <<" AT GENERATION " << endgen << endl;
         //for (i = 0; i < turns; i++){
           //  mooseOutput << moosePlays[popbest][i];
 
@@ -161,7 +166,7 @@ int main(){
 		popbest = 0; // reset popbest for next run.
 
     }
-    //mooseOutput.close();
+    mooseOutput.close();
     return 0;
 
 }
