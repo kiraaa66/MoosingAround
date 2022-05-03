@@ -35,10 +35,13 @@ int main(){
     int i, j, k, run; //for loop variables
 
     ofstream mooseOutput[30]; // this has all of the runs contained
-    ofstream mooseOutputBest;
+    ofstream mooseOutputBest("best.csv");
 
     char runFile[30][20] = {"run00.csv", "run01.csv", "run02.csv", "run03.csv", "run04.csv", "run05.csv", "run06.csv", "run07.csv", "run08.csv", "run09.csv", "run10.csv", "run11.csv", "run12.csv", "run13.csv", "run14.csv", "run15.csv", "run16.csv", "run17.csv", "run18.csv", "run19.csv", "run20.csv", "run21.csv", "run22.csv", "run23.csv", "run24.csv", "run25.csv", "run26.csv", "run27.csv", "run28.csv",  "run29.csv"};
 
+    for (i = 0; i < runs; i++){
+        mooseOutput[i].open(runFile[i]);
+    }
 
     int curbest = 0;
     int popbest = 0;
@@ -90,14 +93,12 @@ int main(){
 
     vector <int> secondMoose(popsize); // set vector to keep track of the values the moose have
 
-    mooseOutputBest.open("best.csv");
-    for (i = 0; i < runs; i++){
-        mooseOutput[i].open(runFile[i]);
-    }
+    //mooseOutputBest.open("best.csv");
+    
 
     for (run = 0; run < runs; run++){ // how many times this is run
         m1Avg = 0;
-        mooseOutput[run] << "Run " << run << endl; // outputs which run it is to the textfile  
+        mooseOutput[run] << run <<endl; // outputs which run it is to the textfile  
         for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
             moosePlays[i].resize(turns);
         }
@@ -171,22 +172,14 @@ int main(){
                 m1Avg += mooseVals[j];
             }
             mooseFitAvg[run][i] = m1Avg/popsize;
-            if ((i%1) == 0){
-                mooseOutput[run] << curbest << endl;
-            }
-		}
-        //mooseOutput << "Fitness Member "<<curbest <<;
-        //cout << " PRODUCED MEMBER OF FITNESS " << curbest << " " << popbest <<" AT GENERATION " << endgen << endl;
-        //for (i = 0; i < turns; i++){
-          //  mooseOutput << moosePlays[popbest][i];
-
-        //}
-        //mooseOutput << endl;
+            
+            mooseOutputBest << curbest << endl; // this outputs the current best for each run into the files
+		} 
 
 		curbest = 0; // reset curbest for next run.
 		popbest = 0; // reset popbest for next run.
 
-    }
+    } // end of all of the runs
     for (i = 0; i < runs; i++){
         mooseOutput[i].close();
     }
