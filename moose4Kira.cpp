@@ -17,10 +17,10 @@ using namespace std;
 
 #define players 2
 #define fields 3
-#define runs 1
-#define gens 10
-#define MNM 3
-#define turns 10
+#define runs 30
+#define gens 50
+#define MNM 2
+#define turns 100
 #define popsize 10
 
 #define seed 234329 // suggested by Michael
@@ -38,8 +38,8 @@ int main(){
 
     int curbest = 0;
     int popbest = 0;
-    int m1Avg = 0;
-    int m2Avg = 0;
+    float m1Avg = 0;
+    //float m2Avg = 0;
     int endgen;
     int wfit;
     int bfit;
@@ -50,8 +50,10 @@ int main(){
     }
     int cross;
     int pert;
+    int chosenMNM;
     default_random_engine rand(seed);
     uniform_int_distribution<int> fieldSelection(0, fields - 1);
+    uniform_int_distribution<int> mnmChoice(0, MNM);
     //uniform_int_distribution<int> tourdist(0,popsize-1);
     uniform_int_distribution<int> crossdist(0,turns-1);
     vector<int> winlos (4); // vector that holds tournament winners and losers.
@@ -59,11 +61,17 @@ int main(){
     //set up calculating the random score each time
     vector<vector<int>> moosePlays(popsize);
     vector<int> mooseVals(popsize);
+    vector<vector<float>> mooseFitAvg(runs);
+
+    for (i = 0; i < runs; i++){ // leaving enough spaces for each run to have the right amount of generations/
+            moosePlays[i].resize(gens + 1);
+    }
 
     vector<int> fieldNum(fields);
     for (i = 0; i < fields; i++){
         fieldNum[i] = 1;
     }
+
 
 
     vector<int> moose2(turns); // moose2 picks for this particular round
@@ -85,6 +93,7 @@ int main(){
     mooseOutput.open("mooseOutput3.txt");
 
     for (run = 0; run < runs; run++){ // how many times this is run
+        m1Avg = 0;
         mooseOutput << "Run " << run << endl; // outputs which run it is to the textfile  
         for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
             moosePlays[i].resize(turns);
@@ -96,15 +105,16 @@ int main(){
             }
             //currently a seg fault in this function itself, works printing otherwise
             mooseVals[i] = fitFUN(moosePlays[i], secondMoose[i], fieldNum, moose2);
-
+            m1Avg += mooseVals[i];
             //cout << "Moose Val: " << i << " " << mooseVals[i] << endl;
             if (mooseVals[i] > curbest){ // writes out what the best value is
                 curbest = mooseVals[i]; //assigns whatever is highest in the pop right at the start
                 popbest = i; // this could be overwritten that's why   
             }
         }
+        mooseFitAvg[run][0] = m1Avg/popsize;
         //cout << curbest << " " << popbest<< endl;
-
+        m1Avg = 0;
         //tournament
         endgen = gens; // This is to tell if we found the global optima before the end
 
@@ -117,6 +127,7 @@ int main(){
 				continue; // skips the rest of EA process if the best possible fitness has been found
 			}
 			for(j = 0; j < popsize; j++){
+
 				if(mooseVals[j] >=wfit)	{ // best parent is fit.
                     winlos[1] = winlos[0]; // shove down current best to second best.
 					winlos[0] = j; // crown new best.
@@ -140,8 +151,11 @@ int main(){
 				for(j = cross; j < turns; j++)	{ // second parent is leading.
 					moosePlays[winlos[k]][j] = moosePlays[winlos[(k+1)%2]][j]; // overwrite rest of loser.
 				}
-				for(j = 0; j<MNM; j++)	{ // mutate the children born from crossover
+                //have a value randomly deciding how many mutations to apply
+                chosenMNM = mnmChoice(rand);
+				for(j = 0; j<chosenMNM; j++)	{ // mutate the children born from crossover
 					pert = crossdist(rand); // pick mutation point.
+                    //include an if statement to have mutations picked
 					moosePlays[winlos[k]][pert] = fieldSelection(rand); // overwrite this mutated entry.
 				}
 				mooseVals[winlos[k]] = fitFUN(moosePlays[winlos[k]], secondMoose[winlos[k]], fieldNum, moose2); // call on fitness function for new populations member.
@@ -150,6 +164,10 @@ int main(){
 					popbest = winlos[k]; // mark new best member of population.
 				}
 			}
+            for (j = 0; j < popsize; j++){
+                m1Avg += mooseVals[j];
+            }
+            mooseFitAvg[run][i] = m1Avg/popsize;
             if ((i%1) == 0){
                 mooseOutput << curbest << endl;
             }
