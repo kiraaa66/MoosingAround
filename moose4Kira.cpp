@@ -34,7 +34,11 @@ int main(){
 
     int i, j, k, run; //for loop variables
 
-    ofstream mooseOutput;
+    ofstream mooseOutput[30]; // this has all of the runs contained
+    ofstream mooseOutputBest;
+
+    char runFile[30][20] = {"run00.csv", "run01.csv", "run02.csv", "run03.csv", "run04.csv", "run05.csv", "run06.csv", "run07.csv", "run08.csv", "run09.csv", "run10.csv", "run11.csv", "run12.csv", "run13.csv", "run14.csv", "run15.csv", "run16.csv", "run17.csv", "run18.csv", "run19.csv", "run20.csv", "run21.csv", "run22.csv", "run23.csv", "run24.csv", "run25.csv", "run26.csv", "run27.csv", "run28.csv",  "run29.csv"};
+
 
     int curbest = 0;
     int popbest = 0;
@@ -72,8 +76,6 @@ int main(){
         fieldNum[i] = 1;
     }
 
-
-
     vector<int> moose2(turns); // moose2 picks for this particular round
     //uniform_int_distribution<int> moose2Selection(0, fields - 1);
     moose2[0] = 0;
@@ -86,15 +88,16 @@ int main(){
         }
     }
 
-
     vector <int> secondMoose(popsize); // set vector to keep track of the values the moose have
 
-
-    mooseOutput.open("mooseOutput3.txt");
+    mooseOutputBest.open("best.csv");
+    for (i = 0; i < runs; i++){
+        mooseOutput[i].open(runFile[i]);
+    }
 
     for (run = 0; run < runs; run++){ // how many times this is run
         m1Avg = 0;
-        mooseOutput << "Run " << run << endl; // outputs which run it is to the textfile  
+        mooseOutput[run] << "Run " << run << endl; // outputs which run it is to the textfile  
         for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
             moosePlays[i].resize(turns);
         }
@@ -169,7 +172,7 @@ int main(){
             }
             mooseFitAvg[run][i] = m1Avg/popsize;
             if ((i%1) == 0){
-                mooseOutput << curbest << endl;
+                mooseOutput[run] << curbest << endl;
             }
 		}
         //mooseOutput << "Fitness Member "<<curbest <<;
@@ -184,7 +187,10 @@ int main(){
 		popbest = 0; // reset popbest for next run.
 
     }
-    mooseOutput.close();
+    for (i = 0; i < runs; i++){
+        mooseOutput[i].close();
+    }
+    mooseOutputBest.close();
     return 0;
 
 }
