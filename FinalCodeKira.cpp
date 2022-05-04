@@ -21,9 +21,9 @@ using namespace std;
 #define turns 100
 
 
-#define gens 250
-#define MNM 4
-#define popsize 20
+#define gens 50
+#define MNM 2
+#define popsize 10
 
 #define seed 234329 // suggested by Michael
 
@@ -101,6 +101,11 @@ int main(){
     //mooseOutputBest.open("best.csv");
     
     //mooseOutputBest << "Best Fitness Per Run" << "," << "" << endl;
+    mooseOutputBest << "Run Number" << "," << "Best Fitness Achieved" << ","; // sets headers
+    for (i = 1; i <= turns; i++){
+        mooseOutputBest << "Turn " << i;
+    }
+    mooseOutputBest << endl;
 
     for (run = 0; run < runs; run++){ // how many times this is run
         m1Avg = 0;
@@ -109,7 +114,6 @@ int main(){
 
         mooseOutput[run]  << "Generation" << "," << "Generation Average" << "," << "Best Fitness Found" <<endl; // outputs which run it is to the textfile  
         
-        mooseOutputBest << "Run Number" << "," << "Best Fitness Achieved" << endl; // sets headers
         mooseOutputBest << run << ",";
 
         for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
@@ -193,13 +197,14 @@ int main(){
             
 		} 
 
-        mooseOutputBest << curbest << endl; // this outputs the current best for each run into the files
-        mooseOutputBest << "Moose Field Strategy" << endl;
+        mooseOutputBest << curbest << ","; // this outputs the current best for each run into the files
+        //mooseOutputBest << "Moose Field Strategy" << endl;
+
         for (i = 0; i < turns; i++){
             mooseOutputBest << moosePlays[popbest][i] << ",";
         }
         mooseOutputBest << endl;
-        mooseOutputBest << endl;
+        //mooseOutputBest << endl;
 
 		curbest = 0; // reset curbest for next run.
 		popbest = 0; // reset popbest for next run.
