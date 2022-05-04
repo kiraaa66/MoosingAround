@@ -18,10 +18,12 @@ using namespace std;
 #define players 2
 #define fields 3
 #define runs 30
-#define gens 50
-#define MNM 2
 #define turns 100
-#define popsize 10
+
+
+#define gens 250
+#define MNM 4
+#define popsize 20
 
 #define seed 234329 // suggested by Michael
 
@@ -29,7 +31,7 @@ using namespace std;
 int expFun(int x);
 
 int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum, vector<int> moose2);
-
+ 
 int main(){
 
     int i, j, k, run; //for loop variables
