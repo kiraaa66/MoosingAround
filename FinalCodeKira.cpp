@@ -35,9 +35,11 @@ int main(){
     int i, j, k, run; //for loop variables
 
     ofstream mooseOutput[30]; // this has all of the runs contained
-    ofstream mooseOutputBest("best.csv");
+    ofstream mooseOutputBest;
 
     char runFile[30][20] = {"run00.csv", "run01.csv", "run02.csv", "run03.csv", "run04.csv", "run05.csv", "run06.csv", "run07.csv", "run08.csv", "run09.csv", "run10.csv", "run11.csv", "run12.csv", "run13.csv", "run14.csv", "run15.csv", "run16.csv", "run17.csv", "run18.csv", "run19.csv", "run20.csv", "run21.csv", "run22.csv", "run23.csv", "run24.csv", "run25.csv", "run26.csv", "run27.csv", "run28.csv",  "run29.csv"};
+
+    mooseOutputBest.open("best.csv");
 
     for (i = 0; i < runs; i++){
         mooseOutput[i].open(runFile[i]);
@@ -68,11 +70,12 @@ int main(){
     //set up calculating the random score each time
     vector<vector<int>> moosePlays(popsize);
     vector<int> mooseVals(popsize);
-    vector<vector<float>> mooseFitAvg(runs);
+    vector<vector<double>> mooseFitAvg(runs);
 
     for (i = 0; i < runs; i++){ // leaving enough spaces for each run to have the right amount of generations/
-            moosePlays[i].resize(gens + 1);
+        mooseFitAvg[i].resize(gens + 1);
     }
+    //cout << "resize works" << endl;
 
     vector<int> fieldNum(fields);
     for (i = 0; i < fields; i++){
@@ -95,10 +98,18 @@ int main(){
 
     //mooseOutputBest.open("best.csv");
     
+    //mooseOutputBest << "Best Fitness Per Run" << "," << "" << endl;
 
     for (run = 0; run < runs; run++){ // how many times this is run
         m1Avg = 0;
-        mooseOutput[run] << run <<endl; // outputs which run it is to the textfile  
+        
+        mooseOutput[run] << "Run Number " << run << endl;
+
+        mooseOutput[run]  << "Generation" << "," << "Generation Average" << "," << "Best Fitness Found" <<endl; // outputs which run it is to the textfile  
+        
+        mooseOutputBest << "Run Number" << "," << "Best Fitness Achieved" << endl; // sets headers
+        mooseOutputBest << run << ",";
+
         for (i = 0; i < popsize; i++){ // leaving enough spaces for turns
             moosePlays[i].resize(turns);
         }
@@ -120,6 +131,9 @@ int main(){
         //cout << curbest << " " << popbest<< endl;
         m1Avg = 0;
         //tournament
+        mooseOutput[run] << "0" << "," << mooseFitAvg[run][0] << "," << curbest << endl;
+
+
         endgen = gens; // This is to tell if we found the global optima before the end
 
 		for(i = 1; i <= gens; i++)	{ // loop for tournaments.
@@ -171,10 +185,19 @@ int main(){
             for (j = 0; j < popsize; j++){
                 m1Avg += mooseVals[j];
             }
-            mooseFitAvg[run][i] = m1Avg/popsize;
+            mooseFitAvg[run][i] = (m1Avg/popsize);
+            mooseOutput[run] << i << "," << mooseFitAvg[run][i] << "," << curbest << endl;
+            m1Avg = 0;
             
-            mooseOutputBest << curbest << endl; // this outputs the current best for each run into the files
 		} 
+
+        mooseOutputBest << curbest << endl; // this outputs the current best for each run into the files
+        mooseOutputBest << "Moose Field Strategy" << endl;
+        for (i = 0; i < turns; i++){
+            mooseOutputBest << moosePlays[popbest][i] << ",";
+        }
+        mooseOutputBest << endl;
+        mooseOutputBest << endl;
 
 		curbest = 0; // reset curbest for next run.
 		popbest = 0; // reset popbest for next run.
