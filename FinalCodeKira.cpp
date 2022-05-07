@@ -62,6 +62,11 @@ int main(){
     int cross;
     int pert;
     int chosenMNM;
+
+    int field1 = 0;
+    int field2 = 0;
+    int field3 = 0;
+
     default_random_engine rand(seed);
     uniform_int_distribution<int> fieldSelection(0, fields - 1);
     uniform_int_distribution<int> mnmChoice(0, MNM);
@@ -101,18 +106,19 @@ int main(){
     //mooseOutputBest.open("best.csv");
     
     //mooseOutputBest << "Best Fitness Per Run" << "," << "" << endl;
-    mooseOutputBest << "Run Number" << "," << "Best Fitness Achieved" << ","; // sets headers
+    mooseOutputBest << "RunNum" << "," << "BestFit" << ","; // sets headers
     for (i = 1; i <= turns; i++){
-        mooseOutputBest << "Turn " << i;
+        mooseOutputBest << "Turn " << i << ",";
     }
-    mooseOutputBest << endl;
+    mooseOutputBest << "Field1Turns" << "," << "Field2Turns" << "," << "Field3Turns" << endl; 
+    //mooseOutputBest << endl;
 
     for (run = 0; run < runs; run++){ // how many times this is run
         m1Avg = 0;
         
-        mooseOutput[run] << "Run Number " << run << endl;
+        //mooseOutput[run] << "Run Number " << run << endl;
 
-        mooseOutput[run]  << "Generation" << "," << "Generation Average" << "," << "Best Fitness Found" <<endl; // outputs which run it is to the textfile  
+        mooseOutput[run]  << "Gen" << "," << "GenAvg" << "," << "BestFit" <<endl; // outputs which run it is to the textfile  
         
         mooseOutputBest << run << ",";
 
@@ -202,8 +208,21 @@ int main(){
 
         for (i = 0; i < turns; i++){
             mooseOutputBest << moosePlays[popbest][i] << ",";
+            if (moosePlays[popbest][i] == 0){
+                field1 += 1;
+            }
+            if(moosePlays[popbest][i] == 1){
+                field2 += 1;
+            }
+            if(moosePlays[popbest][i] == 2){
+                field3 += 1;
+            }
         }
-        mooseOutputBest << endl;
+        mooseOutputBest << field1 << "," << field2 << "," << field3 << endl;
+        //mooseOutputBest << endl;
+        field1 = 0;
+        field2 = 0;
+        field3 = 0;
         //mooseOutputBest << endl;
 
 		curbest = 0; // reset curbest for next run.
