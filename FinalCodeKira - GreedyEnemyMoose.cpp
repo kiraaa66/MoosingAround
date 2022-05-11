@@ -244,10 +244,11 @@ int expFun(int x){
 
 int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum, vector<int> moose2){
 
-    
-
+    default_random_engine rand(seed);
+    uniform_int_distribution<int> field(0, fields - 1);
     int i, j; // for loops variables
     int moose1Val = 0;
+    //int counter = 0;
     moose2Val = 0;
     for (i = 0; i < fields; i++){
         fieldNum[i] = 1;
@@ -257,15 +258,10 @@ int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum, vector<int> 
     //default_random_engine random(seed);
     //vector<int> moose2(turns); // moose2 picks for this particular round
     //uniform_int_distribution<int> moose2Selection(0, fields - 1);
-    moose2[0] = 0;
+    moose2[0] = field(rand); // chooses a random field to start as all are equal
     //randomly selects the moose fields for each of the turns - old version
 
-    for (i = 0; i < turns; i++){ //chooses moose values by just going to the field next to it each time
-        moose2[i] = moose2[i-1] + 1;
-        if (moose2[i] > 2){
-            moose2[i] = 0;
-        }
-    }
+
 
     for (i = 0; i < turns; i++){
 
@@ -299,6 +295,23 @@ int fitFUN(vector<int> moose1, int moose2Val, vector<int> fieldNum, vector<int> 
                 fieldNum[j] = 0;
             }
         }
+        if (i < turns - 1){
+            if (fieldNum[0] > fieldNum[1]){
+                if (fieldNum[0] > fieldNum[2]){
+                    moose2[i + 1] = fieldNum[0];
+                }
+                else{
+                    moose2[i + 1] = fieldNum[2];
+                }
+            }
+            else if(fieldNum[1] > fieldNum[0]){
+                moose2[i+1] = fieldNum[1];
+            }
+            else{
+                moose2[i+1] = field(rand);
+            }
+        }
+
     }
     return moose1Val;
 }
