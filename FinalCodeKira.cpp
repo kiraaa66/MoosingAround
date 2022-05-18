@@ -21,7 +21,7 @@ using namespace std;
 #define turns 100
 
 
-#define gens 50
+#define gens 100
 #define MNM 2
 #define popsize 10
 

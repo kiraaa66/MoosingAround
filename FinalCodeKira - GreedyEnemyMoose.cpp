@@ -22,7 +22,7 @@ using namespace std;
 
 
 #define gens 50
-#define MNM 2
+#define MNM 3
 #define popsize 10
 
 #define seed 234329 // suggested by Michael
